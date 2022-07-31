@@ -37,6 +37,8 @@ param domainJoinOptions int
 
 var storageAccountName = 'azurelabsa${uniqueString(resourceGroup().id)}'
 var dnsLabelPrefix = 'azurelabmsdns${uniqueString(resourceGroup().id)}'
+var scriptUrl = 'https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/domain-users/create_users.ps1'
+var scriptFilename = 'create_users.ps1'
 
 module Deploy2Dcs './create-2-dcs/deploy2dcs.bicep' = {
   name: dcDeplymentName
@@ -49,6 +51,31 @@ module Deploy2Dcs './create-2-dcs/deploy2dcs.bicep' = {
     vmSize: vmSize
     _artifactsLocation: _artifactsLocation
   }
+}
+
+resource domainUserCreateScript 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
+  name: 'adPDC/installScript'
+  location: location
+  tags: {
+    displayName: 'customScript for Domain user creation'
+  }
+  properties: {
+    publisher: 'Microsoft.Compute'
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.10'
+    autoUpgradeMinorVersion: true
+    settings: {
+      fileUris: [
+        scriptUrl
+      ]
+    }
+    protectedSettings: {
+      commandToExecute: 'powershell -ExecutionPolicy Bypass -file  ${scriptFilename}'
+    }
+  }
+  dependsOn: [
+    Deploy2Dcs
+  ]
 }
 
 module DeployMemberServers './vm-domain-join/vm-domain-join.bicep' = {
