@@ -24,6 +24,8 @@ In the Azure portal, on the Deployment blade, review the deployment details and 
 In the Azure portal, navigate to the blade of the VM(s) you identified in the previous step, select Extensions, and from the Extensions blade, remove the CustomScript extension
 Redeploy your bicep template with the same code
 
+If the AD users are not created you need to go to the PDC VM and delete the "installScript" extension and run the deploy again
+
 ## REQUIREMENTS
 
 1. Existing resource group
