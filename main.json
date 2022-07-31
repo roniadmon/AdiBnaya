@@ -1,0 +1,1276 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.8.9.13224",
+      "templateHash": "11950788117772530568"
+    }
+  },
+  "parameters": {
+    "dcDeplymentName": {
+      "type": "string",
+      "defaultValue": "[format('azurelabdc{0}', uniqueString(resourceGroup().id))]"
+    },
+    "msDeplymentName": {
+      "type": "string",
+      "defaultValue": "[format('azurelabms{0}', uniqueString(resourceGroup().id))]"
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Administrator of the new VM and Domain"
+      }
+    },
+    "location": {
+      "type": "string",
+      "allowedValues": [
+        "centralus",
+        "eastus",
+        "eastus2",
+        "francecentral",
+        "northeurope",
+        "southeastasia",
+        "ukwest",
+        "westus2",
+        "westeurope"
+      ],
+      "metadata": {
+        "description": "Location for the VM, only certain regions support zones during preview."
+      }
+    },
+    "adminPassword": {
+      "type": "secureString",
+      "metadata": {
+        "description": "The password for the Administrator account of the new VM and Domain"
+      }
+    },
+    "domainName": {
+      "type": "string",
+      "defaultValue": "contoso.local",
+      "metadata": {
+        "description": "The FQDN of the AD Domain created "
+      }
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The DNS prefix for the public IP address used by the Load Balancer"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The location of resources such as templates and DSC modules that the script is dependent"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_Ds1_v2"
+    },
+    "domainJoinOptions": {
+      "type": "int"
+    }
+  },
+  "variables": {
+    "storageAccountName": "[format('azurelabsa{0}', uniqueString(resourceGroup().id))]",
+    "dnsLabelPrefix": "[format('azurelabmsdns{0}', uniqueString(resourceGroup().id))]",
+    "scriptUrl": "https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/domain-users/create_users.ps1",
+    "scriptFilename": "create_users.ps1"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-07-01",
+      "name": "adPDC/installScript",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "customScript for Domain user creation"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[variables('scriptUrl')]"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "[format('powershell -ExecutionPolicy Bypass -file  {0}', variables('scriptFilename'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', parameters('dcDeplymentName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[parameters('dcDeplymentName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
+          "dnsPrefix": {
+            "value": "[parameters('dnsPrefix')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmSize')]"
+          },
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.8.9.13224",
+              "templateHash": "12952547517652184052"
+            }
+          },
+          "parameters": {
+            "adminUsername": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the Administrator of the new VM and Domain"
+              }
+            },
+            "location": {
+              "type": "string",
+              "allowedValues": [
+                "centralus",
+                "eastus",
+                "eastus2",
+                "francecentral",
+                "northeurope",
+                "southeastasia",
+                "ukwest",
+                "westus2",
+                "westeurope"
+              ],
+              "metadata": {
+                "description": "Location for the VM, only certain regions support zones during preview."
+              }
+            },
+            "adminPassword": {
+              "type": "secureString",
+              "metadata": {
+                "description": "The password for the Administrator account of the new VM and Domain"
+              }
+            },
+            "domainName": {
+              "type": "string",
+              "defaultValue": "contoso.local",
+              "metadata": {
+                "description": "The FQDN of the AD Domain created "
+              }
+            },
+            "dnsPrefix": {
+              "type": "string",
+              "metadata": {
+                "description": "The DNS prefix for the public IP address used by the Load Balancer"
+              }
+            },
+            "vmSize": {
+              "type": "string",
+              "defaultValue": "Standard_Ds1_v2",
+              "metadata": {
+                "description": "Size of the VM for the controller"
+              }
+            },
+            "_artifactsLocation": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The location of resources such as templates and DSC modules that the script is dependent"
+              }
+            },
+            "artifactsLocationSasToken": {
+              "type": "secureString",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Auto-generated token to access _artifactsLocation"
+              }
+            }
+          },
+          "variables": {
+            "imagePublisher": "MicrosoftWindowsServer",
+            "imageOffer": "WindowsServer",
+            "imageSKU": "2019-Datacenter",
+            "virtualNetworkName": "adVNET",
+            "virtualNetworkAddressRange": "10.0.0.0/16",
+            "adSubnetName": "adSubnet",
+            "adSubnet": "10.0.0.0/24",
+            "adSubnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('adSubnetName'))]",
+            "publicIPSKU": "Standard",
+            "publicIPAddressName_var": "adPublicIp",
+            "publicIPAddressType": "Static",
+            "publicIpAddressId": {
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName_var'))]"
+            },
+            "vmName_var": [
+              "adPDC",
+              "adBDC"
+            ],
+            "nicName_var": [
+              "adPDCNic",
+              "adBDCNic"
+            ],
+            "ipAddress": [
+              "10.0.0.4",
+              "10.0.0.5"
+            ],
+            "adBDCConfigurationModulesURL": "[uri(parameters('_artifactsLocation'), 'DSC/ConfigureADBDC.ps1.zip')]",
+            "adBDCConfigurationScript": "ConfigureADBDC.ps1",
+            "adBDCConfigurationFunction": "ConfigureADBDC"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2020-11-01",
+              "name": "[variables('publicIPAddressName_var')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[variables('publicIPSKU')]"
+              },
+              "zones": [
+                "1"
+              ],
+              "properties": {
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+                "dnsSettings": {
+                  "domainNameLabel": "[parameters('dnsPrefix')]"
+                }
+              }
+            },
+            {
+              "copy": {
+                "name": "nicName",
+                "count": "[length(range(0, 2))]"
+              },
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-11-01",
+              "name": "[variables('nicName_var')[range(0, 2)[copyIndex()]]]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateIPAllocationMethod": "Static",
+                      "privateIPAddress": "[variables('ipAddress')[range(0, 2)[copyIndex()]]]",
+                      "publicIPAddress": "[if(equals(range(0, 2)[copyIndex()], 0), variables('publicIpAddressId'), json('null'))]",
+                      "subnet": {
+                        "id": "[variables('adSubnetRef')]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'CreateVNet')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName_var'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "vmName",
+                "count": "[length(range(0, 2))]"
+              },
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2020-12-01",
+              "name": "[variables('vmName_var')[range(0, 2)[copyIndex()]]]",
+              "location": "[parameters('location')]",
+              "zones": [
+                "[add(range(0, 2)[copyIndex()], 1)]"
+              ],
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                  "computerName": "[variables('vmName_var')[range(0, 2)[copyIndex()]]]",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "[variables('imagePublisher')]",
+                    "offer": "[variables('imageOffer')]",
+                    "sku": "[variables('imageSKU')]",
+                    "version": "latest"
+                  },
+                  "osDisk": {
+                    "caching": "ReadOnly",
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "StandardSSD_LRS"
+                    }
+                  },
+                  "dataDisks": [
+                    {
+                      "diskSizeGB": 64,
+                      "lun": 0,
+                      "createOption": "Empty"
+                    }
+                  ]
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName_var')[range(0, 2)[copyIndex()]])]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "nicName"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2020-12-01",
+              "name": "[format('{0}/CreateAdForest', variables('vmName_var')[0])]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.24",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "configuration": {
+                    "url": "[uri(parameters('_artifactsLocation'), 'DSC/CreateADPDC.ps1.zip')]",
+                    "script": "CreateADPDC.ps1",
+                    "function": "CreateADPDC"
+                  },
+                  "configurationArguments": {
+                    "domainName": "[parameters('domainName')]"
+                  }
+                },
+                "protectedSettings": {
+                  "configurationUrlSasToken": "[parameters('artifactsLocationSasToken')]",
+                  "configurationArguments": {
+                    "adminCreds": {
+                      "userName": "[parameters('adminUsername')]",
+                      "password": "[parameters('adminPassword')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "vmName"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2020-12-01",
+              "name": "[format('{0}/PepareBDC', variables('vmName_var')[1])]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.24",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "configuration": {
+                    "url": "[uri(parameters('_artifactsLocation'), 'DSC/PrepareADBDC.ps1.zip')]",
+                    "script": "PrepareADBDC.ps1",
+                    "function": "PrepareADBDC"
+                  },
+                  "configurationArguments": {
+                    "DNSServer": "[variables('ipAddress')[0]]"
+                  }
+                },
+                "protectedSettings": {
+                  "configurationUrlSasToken": "[parameters('artifactsLocationSasToken')]"
+                }
+              },
+              "dependsOn": [
+                "vmName"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "CreateVNet",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "virtualNetworkName": {
+                    "value": "[variables('virtualNetworkName')]"
+                  },
+                  "virtualNetworkAddressRange": {
+                    "value": "[variables('virtualNetworkAddressRange')]"
+                  },
+                  "subnetName": {
+                    "value": "[variables('adSubnetName')]"
+                  },
+                  "subnetRange": {
+                    "value": "[variables('adSubnet')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "1649784724320180876"
+                    }
+                  },
+                  "parameters": {
+                    "virtualNetworkName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the Virtual Network to Create"
+                      }
+                    },
+                    "virtualNetworkAddressRange": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The address range of the new VNET in CIDR format"
+                      }
+                    },
+                    "subnetName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the subnet created in the new VNET"
+                      }
+                    },
+                    "subnetRange": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The address range of the subnet created in the new VNET"
+                      }
+                    },
+                    "DNSServerAddress": {
+                      "type": "array",
+                      "defaultValue": [],
+                      "metadata": {
+                        "Description": "The DNS address(es) of the DNS Server(s) used by the VNET"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for all resources."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "dhcpOptions": {
+                      "dnsServers": "[parameters('DNSServerAddress')]"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks",
+                      "apiVersion": "2020-11-01",
+                      "name": "[parameters('virtualNetworkName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "addressSpace": {
+                          "addressPrefixes": [
+                            "[parameters('virtualNetworkAddressRange')]"
+                          ]
+                        },
+                        "dhcpOptions": "[if(empty(parameters('DNSServerAddress')), json('null'), variables('dhcpOptions'))]",
+                        "subnets": [
+                          {
+                            "name": "[parameters('subnetName')]",
+                            "properties": {
+                              "addressPrefix": "[parameters('subnetRange')]"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "virtualNetworkGuid": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))).resourceGuid]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "UpdateVNetDNS1",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "virtualNetworkName": {
+                    "value": "[variables('virtualNetworkName')]"
+                  },
+                  "virtualNetworkAddressRange": {
+                    "value": "[variables('virtualNetworkAddressRange')]"
+                  },
+                  "subnetName": {
+                    "value": "[variables('adSubnetName')]"
+                  },
+                  "subnetRange": {
+                    "value": "[variables('adSubnet')]"
+                  },
+                  "DNSServerAddress": {
+                    "value": [
+                      "[variables('ipAddress')[0]]"
+                    ]
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "1649784724320180876"
+                    }
+                  },
+                  "parameters": {
+                    "virtualNetworkName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the Virtual Network to Create"
+                      }
+                    },
+                    "virtualNetworkAddressRange": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The address range of the new VNET in CIDR format"
+                      }
+                    },
+                    "subnetName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the subnet created in the new VNET"
+                      }
+                    },
+                    "subnetRange": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The address range of the subnet created in the new VNET"
+                      }
+                    },
+                    "DNSServerAddress": {
+                      "type": "array",
+                      "defaultValue": [],
+                      "metadata": {
+                        "Description": "The DNS address(es) of the DNS Server(s) used by the VNET"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for all resources."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "dhcpOptions": {
+                      "dnsServers": "[parameters('DNSServerAddress')]"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks",
+                      "apiVersion": "2020-11-01",
+                      "name": "[parameters('virtualNetworkName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "addressSpace": {
+                          "addressPrefixes": [
+                            "[parameters('virtualNetworkAddressRange')]"
+                          ]
+                        },
+                        "dhcpOptions": "[if(empty(parameters('DNSServerAddress')), json('null'), variables('dhcpOptions'))]",
+                        "subnets": [
+                          {
+                            "name": "[parameters('subnetName')]",
+                            "properties": {
+                              "addressPrefix": "[parameters('subnetRange')]"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "virtualNetworkGuid": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))).resourceGuid]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/CreateAdForest', variables('vmName_var')[0]), '/')[0], split(format('{0}/CreateAdForest', variables('vmName_var')[0]), '/')[1])]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', split(format('{0}/PepareBDC', variables('vmName_var')[1]), '/')[0], split(format('{0}/PepareBDC', variables('vmName_var')[1]), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "UpdateBDCNIC",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "nicName": {
+                    "value": "[variables('nicName_var')[1]]"
+                  },
+                  "ipConfigurations": {
+                    "value": [
+                      {
+                        "name": "ipconfig1",
+                        "properties": {
+                          "privateIPAllocationMethod": "Static",
+                          "privateIPAddress": "[variables('ipAddress')[1]]",
+                          "subnet": {
+                            "id": "[variables('adSubnetRef')]"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "dnsServers": {
+                    "value": [
+                      "[variables('ipAddress')[0]]"
+                    ]
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "11987213999446407681"
+                    }
+                  },
+                  "parameters": {
+                    "nicName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the NIC to Create or Update"
+                      }
+                    },
+                    "ipConfigurations": {
+                      "type": "array",
+                      "metadata": {
+                        "Description": "The IP configurations of the NIC"
+                      }
+                    },
+                    "dnsServers": {
+                      "type": "array",
+                      "metadata": {
+                        "Description": "The DNS Servers of the NIC"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for all resources."
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkInterfaces",
+                      "apiVersion": "2020-11-01",
+                      "name": "[parameters('nicName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "ipConfigurations": "[parameters('ipConfigurations')]",
+                        "dnsSettings": {
+                          "dnsServers": "[parameters('dnsServers')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'UpdateVNetDNS1')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "ConfiguringBackupADDomainController",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "extName": {
+                    "value": "[format('{0}/PepareBDC', variables('vmName_var')[1])]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "adminUsername": {
+                    "value": "[parameters('adminUsername')]"
+                  },
+                  "adminPassword": {
+                    "value": "[parameters('adminPassword')]"
+                  },
+                  "domainName": {
+                    "value": "[parameters('domainName')]"
+                  },
+                  "adBDCConfigurationScript": {
+                    "value": "[variables('adBDCConfigurationScript')]"
+                  },
+                  "adBDCConfigurationFunction": {
+                    "value": "[variables('adBDCConfigurationFunction')]"
+                  },
+                  "adBDCConfigurationModulesURL": {
+                    "value": "[variables('adBDCConfigurationModulesURL')]"
+                  },
+                  "artifactsLocationSasToken": {
+                    "value": "[parameters('artifactsLocationSasToken')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "299689475690734800"
+                    }
+                  },
+                  "parameters": {
+                    "extName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "adminUsername": {
+                      "type": "string"
+                    },
+                    "adminPassword": {
+                      "type": "secureString"
+                    },
+                    "domainName": {
+                      "type": "string"
+                    },
+                    "adBDCConfigurationScript": {
+                      "type": "string"
+                    },
+                    "adBDCConfigurationFunction": {
+                      "type": "string"
+                    },
+                    "adBDCConfigurationModulesURL": {
+                      "type": "string"
+                    },
+                    "artifactsLocationSasToken": {
+                      "type": "secureString"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2020-12-01",
+                      "name": "[parameters('extName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.24",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                          "configuration": {
+                            "url": "[parameters('adBDCConfigurationModulesURL')]",
+                            "script": "[parameters('adBDCConfigurationScript')]",
+                            "function": "[parameters('adBDCConfigurationFunction')]"
+                          },
+                          "configurationArguments": {
+                            "domainName": "[parameters('domainName')]"
+                          }
+                        },
+                        "protectedSettings": {
+                          "configurationUrlSasToken": "[parameters('artifactsLocationSasToken')]",
+                          "configurationArguments": {
+                            "adminCreds": {
+                              "userName": "[parameters('adminUsername')]",
+                              "password": "[parameters('adminPassword')]"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'UpdateBDCNIC')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "UpdateVNetDNS2",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "virtualNetworkName": {
+                    "value": "[variables('virtualNetworkName')]"
+                  },
+                  "virtualNetworkAddressRange": {
+                    "value": "[variables('virtualNetworkAddressRange')]"
+                  },
+                  "subnetName": {
+                    "value": "[variables('adSubnetName')]"
+                  },
+                  "subnetRange": {
+                    "value": "[variables('adSubnet')]"
+                  },
+                  "DNSServerAddress": {
+                    "value": "[variables('ipAddress')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "1649784724320180876"
+                    }
+                  },
+                  "parameters": {
+                    "virtualNetworkName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the Virtual Network to Create"
+                      }
+                    },
+                    "virtualNetworkAddressRange": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The address range of the new VNET in CIDR format"
+                      }
+                    },
+                    "subnetName": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The name of the subnet created in the new VNET"
+                      }
+                    },
+                    "subnetRange": {
+                      "type": "string",
+                      "metadata": {
+                        "Description": "The address range of the subnet created in the new VNET"
+                      }
+                    },
+                    "DNSServerAddress": {
+                      "type": "array",
+                      "defaultValue": [],
+                      "metadata": {
+                        "Description": "The DNS address(es) of the DNS Server(s) used by the VNET"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Location for all resources."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "dhcpOptions": {
+                      "dnsServers": "[parameters('DNSServerAddress')]"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks",
+                      "apiVersion": "2020-11-01",
+                      "name": "[parameters('virtualNetworkName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "addressSpace": {
+                          "addressPrefixes": [
+                            "[parameters('virtualNetworkAddressRange')]"
+                          ]
+                        },
+                        "dhcpOptions": "[if(empty(parameters('DNSServerAddress')), json('null'), variables('dhcpOptions'))]",
+                        "subnets": [
+                          {
+                            "name": "[parameters('subnetName')]",
+                            "properties": {
+                              "addressPrefix": "[parameters('subnetRange')]"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "virtualNetworkGuid": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))).resourceGuid]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'ConfiguringBackupADDomainController')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "virtualNetworkName": {
+              "type": "string",
+              "value": "[variables('virtualNetworkName')]"
+            },
+            "publicIPAddressName": {
+              "type": "string",
+              "value": "[variables('publicIPAddressName_var')]"
+            },
+            "adSubnetName": {
+              "type": "string",
+              "value": "[variables('adSubnetName')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[parameters('msDeplymentName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "existingVnetName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', parameters('dcDeplymentName'))).outputs.virtualNetworkName.value]"
+          },
+          "existingSubnetName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', parameters('dcDeplymentName'))).outputs.adSubnetName.value]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmSize')]"
+          },
+          "domainToJoin": {
+            "value": "[parameters('domainName')]"
+          },
+          "domainUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "domainPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "domainJoinOptions": {
+            "value": "[parameters('domainJoinOptions')]"
+          },
+          "storageAccountName": {
+            "value": "[variables('storageAccountName')]"
+          },
+          "dnsLabelPrefix": {
+            "value": "[variables('dnsLabelPrefix')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.8.9.13224",
+              "templateHash": "6643958303601111624"
+            }
+          },
+          "parameters": {
+            "vmSize": {
+              "type": "string",
+              "defaultValue": "Standard_Ds1_v2",
+              "metadata": {
+                "description": "Size of VM"
+              }
+            },
+            "existingVnetName": {
+              "type": "string",
+              "metadata": {
+                "description": "Existing VNET that contains the domain controller"
+              }
+            },
+            "existingSubnetName": {
+              "type": "string",
+              "metadata": {
+                "description": "Existing subnet that contains the domain controller"
+              }
+            },
+            "dnsLabelPrefix": {
+              "type": "string",
+              "maxLength": 62,
+              "minLength": 1,
+              "metadata": {
+                "description": "Unique public DNS prefix for the deployment. The fqdn will look something like '<dnsname>.westus.cloudapp.azure.com'. Up to 62 chars, digits or dashes, lowercase, should start with a letter: must conform to '^[a-z][a-z0-9-]{1,61}[a-z0-9]$'."
+              }
+            },
+            "domainToJoin": {
+              "type": "string",
+              "metadata": {
+                "description": "The FQDN of the AD domain"
+              }
+            },
+            "domainUsername": {
+              "type": "string",
+              "metadata": {
+                "description": "Username of the account on the domain"
+              }
+            },
+            "domainPassword": {
+              "type": "secureString",
+              "metadata": {
+                "description": "Password of the account on the domain"
+              }
+            },
+            "ouPath": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Organizational Unit path in which the nodes and cluster will be present."
+              }
+            },
+            "domainJoinOptions": {
+              "type": "int",
+              "defaultValue": 3,
+              "metadata": {
+                "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx"
+              }
+            },
+            "adminUsername": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the administrator of the new VM."
+              }
+            },
+            "adminPassword": {
+              "type": "secureString",
+              "metadata": {
+                "description": "The password for the administrator account of the new VM."
+              }
+            },
+            "storageAccountName": {
+              "type": "string",
+              "defaultValue": "[uniqueString(resourceGroup().id, deployment().name)]",
+              "metadata": {
+                "description": "The name of the storage account."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location for all resources."
+              }
+            }
+          },
+          "variables": {
+            "imagePublisher": "MicrosoftWindowsServer",
+            "imageOffer": "WindowsServer",
+            "windowsOSVersion": "2019-Datacenter",
+            "nicName": [
+              "[format('{0}-nic1', parameters('dnsLabelPrefix'))]",
+              "[format('{0}-nic2', parameters('dnsLabelPrefix'))]"
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-04-01",
+              "name": "[parameters('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS"
+              }
+            },
+            {
+              "copy": {
+                "name": "nic",
+                "count": "[length(range(0, 2))]"
+              },
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-11-01",
+              "name": "[variables('nicName')[range(0, 2)[copyIndex()]]]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "copy": {
+                "name": "virtualMachine",
+                "count": "[length(range(0, 2))]"
+              },
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2021-03-01",
+              "name": "[format('dnsLabelPrefix{0}', add(range(0, 2)[copyIndex()], 1))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                  "computerName": "[format('memberserver{0}', add(range(0, 2)[copyIndex()], 1))]",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "[variables('imagePublisher')]",
+                    "offer": "[variables('imageOffer')]",
+                    "sku": "[variables('windowsOSVersion')]",
+                    "version": "latest"
+                  },
+                  "osDisk": {
+                    "name": "[format('{0}-OsDisk{1}', parameters('dnsLabelPrefix'), add(range(0, 2)[copyIndex()], 1))]",
+                    "caching": "ReadWrite",
+                    "createOption": "FromImage"
+                  },
+                  "dataDisks": [
+                    {
+                      "name": "[format('{0}-DataDisk{1}', parameters('dnsLabelPrefix'), add(range(0, 2)[copyIndex()], 1))]",
+                      "caching": "None",
+                      "createOption": "Empty",
+                      "diskSizeGB": 1024,
+                      "lun": 0
+                    }
+                  ]
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName')[range(0, 2)[range(0, 2)[copyIndex()]]])]"
+                    }
+                  ]
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints.blob]"
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName')[range(0, 2)[range(0, 2)[copyIndex()]]])]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "virtualMachineExtension",
+                "count": "[length(range(0, 2))]"
+              },
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/{1}', format('dnsLabelPrefix{0}', add(range(0, 2)[range(0, 2)[copyIndex()]], 1)), 'joindomain')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "name": "[parameters('domainToJoin')]",
+                  "ouPath": "[parameters('ouPath')]",
+                  "user": "[format('{0}\\{1}', parameters('domainToJoin'), parameters('domainUsername'))]",
+                  "restart": true,
+                  "options": "[parameters('domainJoinOptions')]"
+                },
+                "protectedSettings": {
+                  "Password": "[parameters('domainPassword')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', format('dnsLabelPrefix{0}', add(range(0, 2)[range(0, 2)[copyIndex()]], 1)))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', parameters('dcDeplymentName'))]"
+      ]
+    }
+  ]
+}
