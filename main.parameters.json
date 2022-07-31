@@ -18,7 +18,7 @@
         "value": "eastus"
       },
       "_artifactsLocation": {
-          "value": "https://raw.githubusercontent.com/daveRendon/azure-quickstart-templates/master/application-workloads/active-directory/active-directory-new-domain-ha-2-dc-zones/"
+          "value": "https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/create-2-dcs/"
       },
       "vmSize": {
         "value": "Standard_Ds1_v2"
