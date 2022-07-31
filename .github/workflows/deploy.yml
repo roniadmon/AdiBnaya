@@ -34,4 +34,5 @@ jobs:
             az deployment group create \
             --name labDeployment \
             --resource-group msProject5008 \
-            --template-file main.bicep
+            --template-file main.bicep \
+            --template-parameter-file main.parameters.json
