@@ -35,6 +35,10 @@ param vmSize string = 'Standard_Ds1_v2'
 
 param domainJoinOptions int
 
+param subscriptionId string
+
+param subscriptionName string
+
 var storageAccountName = 'azurelabsa${uniqueString(resourceGroup().id)}'
 var dnsLabelPrefix = 'azurelabmsdns${uniqueString(resourceGroup().id)}'
 var scriptUrl = 'https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/domain-users/create_users.ps1'
@@ -93,5 +97,14 @@ module DeployMemberServers './vm-domain-join/vm-domain-join.bicep' = {
     domainJoinOptions: domainJoinOptions
     storageAccountName: storageAccountName
     dnsLabelPrefix: dnsLabelPrefix
+  }
+}
+
+module DeployDashboard './dashboard/dashboard.bicep' = {
+  name: 'dashboardDeploy'
+  params: {
+    location: location
+    subscriptionId: subscriptionId
+    subscriptionName: subscriptionName
   }
 }

@@ -1,0 +1,265 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.8.9.13224",
+      "templateHash": "943374525735869020"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Resource group name."
+      }
+    },
+    "subscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().id]",
+      "metadata": {
+        "description": "Subscription id."
+      }
+    },
+    "subscriptionName": {
+      "type": "string",
+      "defaultValue": "[subscription().displayName]",
+      "metadata": {
+        "description": "Subscription name."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Portal/dashboards",
+      "apiVersion": "2015-08-01-preview",
+      "name": "My-Dashboard",
+      "location": "[parameters('location')]",
+      "tags": {
+        "hidden-title": "My-Dashboard"
+      },
+      "properties": {
+        "lenses": {
+          "0": {
+            "order": 0,
+            "parts": {
+              "0": {
+                "position": {
+                  "x": 0,
+                  "y": 0,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "chart": {
+                          "metrics": [
+                            {
+                              "resourceMetadata": {
+                                "region": "[parameters('location')]",
+                                "resourceType": "microsoft.compute/virtualmachines",
+                                "subscription": {
+                                  "subscriptionId": "[parameters('subscriptionId')]",
+                                  "displayName": "[parameters('subscriptionName')]",
+                                  "uniqueDisplayName": "[parameters('subscriptionName')]"
+                                }
+                              },
+                              "name": "Data Disk Bandwidth Consumed Percentage",
+                              "aggregationType": 4,
+                              "namespace": "microsoft.compute/virtualmachines",
+                              "metricVisualization": {
+                                "displayName": "Data Disk IOPS Consumed Percentage",
+                                "resourceDisplayName": "[parameters('subscriptionName')]"
+                              }
+                            }
+                          ],
+                          "title": "[format('Avg Data Disk Bandwidth Consumed Percentage for{0}in East US region  by ResourceId where ResourceGroupName = {1}', parameters('subscriptionName'), parameters('resourceGroupName'))]",
+                          "titleKind": 1,
+                          "visualization": {
+                            "chartType": 2,
+                            "legendVisualization": {
+                              "isVisible": true,
+                              "position": 2,
+                              "hideSubtitle": false
+                            },
+                            "axisVisualization": {
+                              "x": {
+                                "isVisible": true,
+                                "axisType": 2
+                              },
+                              "y": {
+                                "isVisible": true,
+                                "axisType": 1
+                              }
+                            }
+                          },
+                          "filterCollection": {
+                            "filters": [
+                              {
+                                "key": "Microsoft.ResourceGroupName",
+                                "operator": 0,
+                                "values": [
+                                  "[parameters('resourceGroupName')]"
+                                ]
+                              }
+                            ]
+                          },
+                          "grouping": {
+                            "dimension": "Microsoft.ResourceId"
+                          },
+                          "timespan": {
+                            "relative": {
+                              "duration": 86400000
+                            },
+                            "showUTCTime": false,
+                            "grain": 1
+                          }
+                        }
+                      },
+                      "isOptional": true
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart"
+                }
+              },
+              "1": {
+                "position": {
+                  "x": 6,
+                  "y": 0,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "chart": {
+                          "metrics": [
+                            {
+                              "resourceMetadata": {
+                                "region": "[parameters('location')]",
+                                "resourceType": "microsoft.compute/virtualmachines",
+                                "subscription": {
+                                  "subscriptionId": "[parameters('subscriptionId')]",
+                                  "displayName": "[parameters('subscriptionName')]",
+                                  "uniqueDisplayName": "[parameters('subscriptionName')]"
+                                }
+                              },
+                              "name": "Data Disk Write Bytes/sec",
+                              "aggregationType": 4,
+                              "namespace": "microsoft.compute/virtualmachines",
+                              "metricVisualization": {
+                                "displayName": "Data Disk Write Bytes/Sec",
+                                "resourceDisplayName": "[parameters('subscriptionName')]"
+                              }
+                            }
+                          ],
+                          "title": "[format('Avg Data Disk Write Bytes/Sec for{0}in{1}region  by ResourceId where ResourceGroupName = {2}', parameters('subscriptionName'), parameters('location'), parameters('resourceGroupName'))]",
+                          "titleKind": 1,
+                          "visualization": {
+                            "chartType": 2,
+                            "legendVisualization": {
+                              "isVisible": true,
+                              "position": 2,
+                              "hideSubtitle": false
+                            },
+                            "axisVisualization": {
+                              "x": {
+                                "isVisible": true,
+                                "axisType": 2
+                              },
+                              "y": {
+                                "isVisible": true,
+                                "axisType": 1
+                              }
+                            }
+                          },
+                          "filterCollection": {
+                            "filters": [
+                              {
+                                "key": "Microsoft.ResourceGroupName",
+                                "operator": 0,
+                                "values": [
+                                  "[parameters('resourceGroupName')]"
+                                ]
+                              }
+                            ]
+                          },
+                          "grouping": {
+                            "dimension": "Microsoft.ResourceId"
+                          },
+                          "timespan": {
+                            "relative": {
+                              "duration": 86400000
+                            },
+                            "showUTCTime": false,
+                            "grain": 1
+                          }
+                        }
+                      },
+                      "isOptional": true
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart"
+                }
+              }
+            }
+          }
+        },
+        "metadata": {
+          "model": {
+            "timeRange": {
+              "value": {
+                "relative": {
+                  "duration": 24,
+                  "timeUnit": 1
+                }
+              },
+              "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+            },
+            "filterLocale": {
+              "value": "en-us"
+            },
+            "filters": {
+              "value": {
+                "MsPortalFx_TimeRange": {
+                  "model": {
+                    "format": "utc",
+                    "granularity": "auto",
+                    "relative": "24h"
+                  },
+                  "displayCache": {
+                    "name": "UTC Time",
+                    "value": "Past 24 hours"
+                  },
+                  "filteredPartIds": []
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
