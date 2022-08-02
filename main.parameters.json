@@ -18,7 +18,7 @@
         "value": "eastus"
       },
       "_artifactsLocation": {
-          "value": "https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/create-2-dcs/"
+          "value": "https://github.com/roniadmon/AdiBnaya/main/create-2-dcs/"
       },
       "vmSize": {
         "value": "Standard_Ds1_v2"
@@ -27,10 +27,10 @@
         "value": 3
       },
       "subscriptionId": {
-        "value": "0f128702-37ab-42ed-a80c-09811a7fe878"
+        "value": "6ae0e7b9-7918-47f4-b086-147ccd91707a"
       },
       "subscriptionName": {
-        "value": "Free Trial"
+        "value": "Tri Sandbox"
       }
     }
   }

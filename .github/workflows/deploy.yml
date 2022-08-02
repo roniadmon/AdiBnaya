@@ -33,6 +33,6 @@ jobs:
           inlineScript: |
             az deployment group create \
             --name labDeployment \
-            --resource-group msProject5008 \
+            --resource-group Vendor \
             --template-file main.bicep \
             --template-parameter-file main.parameters.json
