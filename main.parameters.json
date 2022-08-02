@@ -23,9 +23,6 @@
       "vmSize": {
         "value": "Standard_Ds1_v2"
       },
-      "domainJoinOptions": {
-        "value": 3
-      },
       "subscriptionId": {
         "value": "6ae0e7b9-7918-47f4-b086-147ccd91707a"
       },
