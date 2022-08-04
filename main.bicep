@@ -29,7 +29,7 @@ param domainName string = 'ronitest.local'
 param dnsPrefix string
 
 @description('The location of resources such as templates and DSC modules that the script is dependent')
-param _artifactsLocation string = 'https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/create-2-dcs/'
+param _artifactsLocation string = 'https://raw.githubusercontent.com/roniadmon/adibnaya/main/create-2-dcs/'
 
 param vmSize string = 'Standard_Ds1_v2'
 
@@ -40,7 +40,7 @@ param subscriptionName string
 var domainJoinOptions = 3
 var storageAccountName = 'azurelabsa${uniqueString(resourceGroup().id)}'
 var dnsLabelPrefix = 'azurelabmsdns${uniqueString(resourceGroup().id)}'
-var scriptUrl = 'https://raw.githubusercontent.com/adibnaya/AzureDevopsTest/main/domain-users/create_users.ps1'
+var scriptUrl = 'https://raw.githubusercontent.com/roniadmon/adibnaya/main/domain-users/create_users.ps1'
 var scriptFilename = 'create_users.ps1'
 
 module Deploy2Dcs './create-2-dcs/deploy2dcs.bicep' = {
