@@ -23,7 +23,7 @@ param location string
 param adminPassword string
 
 @description('The FQDN of the AD Domain created ')
-param domainName string = 'contoso.local'
+param domainName string = 'ronitest.local'
 
 @description('The DNS prefix for the public IP address used by the Load Balancer')
 param dnsPrefix string

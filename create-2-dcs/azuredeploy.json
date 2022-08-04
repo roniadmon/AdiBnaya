@@ -33,7 +33,7 @@
       },
       "domainName": {
         "type": "string",
-        "defaultValue": "contoso.local",
+        "defaultValue": "ronitest.local",
         "metadata": {
           "description": "The FQDN of the AD Domain created "
         }
